@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router, Link } from 'react-router-dom'
-import SockJsClient from 'react-stomp'
+import * as io from 'socket.io-client'
+//import SockJsClient from 'react-stomp'
 import { useTable } from 'react-table'
 import styled from 'styled-components'
 import update from 'immutability-helper'
 
-const WS_URL = 'http://localhost:3000/'
-const WS_TOPICS_PREFIX = '/topics'
-const WS_TOPICS = [WS_TOPICS_PREFIX + '/job_state']
+const baseUrl = 'http://localhost:3000'
 
 //Styled-components. Could move to CSS
 const Styles = styled.div`
@@ -101,17 +100,59 @@ function Table({ columns, data }) {
   )
 }
 
+const alphabetLOWERpart1 = 'abcdefghijklm'
+const alphabetLOWERpart2 = 'nopqrstuvwxyz'
+const alphabetUPPERpart1 = alphabetLOWERpart1.toUpperCase()
+const alphabetUPPERpart2 = alphabetLOWERpart2.toUpperCase()
+
+function rot13(encoded) {
+  console.log('rot13', 'in', encoded)
+  var decodedArr = []
+
+  for (var i = 0; i < encoded.length; i++) {
+    var c = encoded.charAt(i)
+    var n1 = alphabetLOWERpart1.indexOf(c)
+    var n2 = alphabetLOWERpart2.indexOf(c)
+    var n3 = alphabetUPPERpart1.indexOf(c)
+    var n4 = alphabetUPPERpart2.indexOf(c)
+
+    if (n1 != -1) {
+      c = alphabetLOWERpart2.charAt(n1)
+    } else {
+      if (n2 != -1) {
+        c = alphabetLOWERpart1.charAt(n2)
+      } else {
+        if (n3 != -1) {
+          c = alphabetUPPERpart2.charAt(n3)
+        } else {
+          if (n4 != -1) {
+            c = alphabetUPPERpart1.charAt(n4)
+          }
+        }
+      }
+    }
+    decodedArr.push(c)
+  }
+  var decoded = decodedArr.join('')
+
+  console.log('rot13', 'out', decoded)
+  return decoded
+}
+
 class Chat extends Component {
   constructor(props) {
     super(props)
     this.state = {
       chat: [],
     }
+    const socket = io(baseUrl)
+    socket.on('mapItem', (data) => this.handleData(data))
     this.handleData = this.handleData.bind(this)
   }
 
   handleData(message) {
-    console.log(message)
+    console.log('receive', "'****'")
+    console.log('receive', "'".message, "'")
   }
 
   componentDidMount() {}
@@ -119,7 +160,6 @@ class Chat extends Component {
   render() {
     return (
       <div class="chatBox">
-        <SockJsClient url={WS_URL} topics={WS_TOPICS} onMessage={this.handleData} debug={false} />
         <Styles>
           <Table columns={columns} data={this.state.chat} />
         </Styles>
