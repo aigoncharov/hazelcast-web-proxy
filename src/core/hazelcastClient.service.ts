@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common'
-import { Client } from 'hazelcast-client'
+import { Client, Config } from 'hazelcast-client'
 import HazelcastClient from 'hazelcast-client/lib/HazelcastClient'
 
 @Injectable()
