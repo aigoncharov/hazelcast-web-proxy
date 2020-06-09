@@ -12,7 +12,12 @@ export class HazelcastClientService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit(): Promise<void> {
     console.log('HazelcastClientService.onModuleInit')
-    this.clientInternal = await Client.newHazelcastClient()
+    try {
+      this.clientInternal = await Client.newHazelcastClient()
+    } catch (e) {
+      console.error('HazelcastClientService.onModuleInit -> could not start client', e)
+      process.exit(1)
+    }
     console.log('HazelcastClientService.onModuleInit -> finished')
   }
 
