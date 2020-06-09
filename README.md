@@ -3,6 +3,7 @@
 
 - [Description](#description)
 - [Installation](#installation)
+- [Running the demo](#running-the-demo)
 - [Running the app](#running-the-app)
 - [Test](#test)
 - [Support](#support)
@@ -46,6 +47,13 @@
 ```bash
 $ npm ci
 ```
+
+## Running the demo
+
+1. `npm ci`
+2. `docker run -e JAVA_OPTS="-Dhazelcast.local.publicAddress=localhost:5701" -p 5701:5701 hazelcast/hazelcast:3.12.7`
+3. `npm start`
+4. `npx ts-node ./samples/maps.ts`
 
 ## Running the app
 
