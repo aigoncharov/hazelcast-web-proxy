@@ -29,17 +29,35 @@ export class MapsService implements OnModuleDestroy {
   }
 
   async findOne<K, V>(mapName: string) {
+    // TODO the problem here is that this call will create IMap, if it wasn't there
+    // as a hacky solution, we could use findAll() filter the result
     const map = await this.hazelcastClientService.client.getMap<K, V>(mapName)
     return map
   }
 
-  async putKey<K, V>(mapName: string, key: K, value: V) {
-    const map = await this.hazelcastClientService.client.getMap<K, V>(mapName)
-    await map.put(key, value)
-    this.subscribeMap(mapName)
+  async get<K, V>(mapName: string, key: K) {
+    const map = await this.findOne<K, V>(mapName)
+    return await map.get(key)
   }
 
-  public async subscribeMap<K, V>(mapName: string) {
+  async create<K, V>(mapName: string, key: K, value: V) {
+    const map = await this.findOne<K, V>(mapName)
+    await map.putIfAbsent(key, value)
+    // TODO we should subscribe on the first WS subscription instead of this place
+    this.subscribeToMap(mapName)
+  }
+
+  async update<K, V>(mapName: string, key: K, value: V) {
+    const map = await this.findOne<K, V>(mapName)
+    await map.put(key, value)
+  }
+
+  async delete<K, V>(mapName: string, key: K) {
+    const map = await this.findOne<K, V>(mapName)
+    await map.delete(key)
+  }
+
+  public async subscribeToMap<K, V>(mapName: string) {
     if (this.listeners.has(mapName)) {
       return
     }

@@ -20,33 +20,34 @@ export class MapsController {
     return formattedMaps
   }
 
+  // TODO What are we going to return here?
   @Get(':id')
   async findOne(): Promise<MapDetailedResDTO> {
     // TODO
     return {}
   }
 
+  // TODO we could support POST /maps/:id endpoint that would create a map
+
   @Get(':id/:key')
   async getKey(): Promise<{
-    /** TODO: What are the possible map values? */
+    /** TODO: What are the possible map values? - they may be arbitrary; let's support string | Object */
   }> {
-    // TODO
-    return {}
+    return await this.mapsService.get(mapName, key)
   }
 
   @Post(':id/:key')
   async putKey(@Param('id') mapName: string, @Param('key') key: string, @Body() data: MapPutKeyReqDTO): Promise<void> {
-    await this.mapsService.putKey(mapName, key, data)
+    await this.mapsService.create(mapName, key, data)
   }
 
   @Put(':id/:key')
-  async replaceKey(@Body() data: MapReplaceKeyReqDTO): Promise<void> {
-    // TODO
-    return {}
+  async replaceKey(@Param('id') mapName: string, @Param('key') key: string, @Body() data: MapReplaceKeyReqDTO): Promise<void> {
+    await this.mapsService.update(mapName, key, data)
   }
 
   @Delete(':id/:key')
-  async removeKey(): Promise<void> {
-    // TODO
+  async removeKey(@Param('id') mapName: string, @Param('key') key: string): Promise<void> {
+    await this.mapsService.delete(mapName, key)
   }
 }
