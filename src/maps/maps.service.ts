@@ -3,7 +3,7 @@ import { EntryEvent } from 'hazelcast-client/lib/core/EntryListener'
 import { MapEvent } from 'hazelcast-client/lib/core/MapListener'
 import { Subject } from 'rxjs'
 
-import { HazelcastClientService } from '../core/hazlecastClient.service'
+import { HazelcastClientService } from '../core/hazelcastClient.service'
 import { MapItemEventType, MapEntityEventType } from './consts'
 import { MapNotFoundError } from '../core/errors/mapNotFound.error'
 

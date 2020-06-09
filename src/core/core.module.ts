@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 
-import { HazelcastClientService } from './hazlecastClient.service'
+import { HazelcastClientService } from './hazelcastClient.service'
 
 @Module({
   providers: [HazelcastClientService],
