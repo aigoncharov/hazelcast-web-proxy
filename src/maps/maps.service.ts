@@ -1,10 +1,11 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Injectable, OnModuleDestroy, NotFoundException } from '@nestjs/common'
 import { EntryEvent } from 'hazelcast-client/lib/core/EntryListener'
 import { MapEvent } from 'hazelcast-client/lib/core/MapListener'
+import { Subject } from 'rxjs'
 
 import { HazelcastClientService } from '../core/hazlecastClient.service'
 import { MapItemEvent, MapEntityEvent } from './consts'
-import { Subject } from 'rxjs'
+import { MapNotFoundError } from '../core/errors/mapNotFound.error'
 
 @Injectable()
 export class MapsService implements OnModuleDestroy {
@@ -22,38 +23,53 @@ export class MapsService implements OnModuleDestroy {
     }
   }
 
-  async findAll() {
+  async findAllMaps() {
     const distributedObjects = await this.hazelcastClientService.client.getDistributedObjects()
     const maps = distributedObjects.filter((item) => item.getServiceName() === 'map')
     return maps
   }
 
-  async findOne<K, V>(mapName: string) {
-    // TODO the problem here is that this call will create IMap, if it wasn't there
-    // as a hacky solution, we could use findAll() filter the result
+  async findMap<K, V>(mapName: string) {
+    const maps = await this.findAllMaps()
+
+    if (!maps.find((map) => map.getName() === mapName)) {
+      throw new MapNotFoundError(mapName)
+    }
+
     const map = await this.hazelcastClientService.client.getMap<K, V>(mapName)
     return map
   }
 
+  async createMap(mapName: string) {
+    await this.hazelcastClientService.client.getMap(mapName)
+    this.subscribeToMap(mapName)
+  }
+
+  async deleteMap(mapName: string) {
+    const map = await this.findMap(mapName)
+
+    await map.destroy()
+
+    this.listeners.delete(mapName)
+  }
+
   async get<K, V>(mapName: string, key: K) {
-    const map = await this.findOne<K, V>(mapName)
+    const map = await this.findMap<K, V>(mapName)
     return await map.get(key)
   }
 
   async create<K, V>(mapName: string, key: K, value: V) {
-    const map = await this.findOne<K, V>(mapName)
-    await map.putIfAbsent(key, value)
-    // TODO we should subscribe on the first WS subscription instead of this place
-    this.subscribeToMap(mapName)
+    const map = await this.findMap<K, V>(mapName)
+    return await map.putIfAbsent(key, value)
   }
 
   async update<K, V>(mapName: string, key: K, value: V) {
-    const map = await this.findOne<K, V>(mapName)
-    await map.put(key, value)
+    const map = await this.findMap<K, V>(mapName)
+    return await map.put(key, value)
   }
 
   async delete<K, V>(mapName: string, key: K) {
-    const map = await this.findOne<K, V>(mapName)
+    const map = await this.findMap<K, V>(mapName)
     await map.delete(key)
   }
 
@@ -62,7 +78,7 @@ export class MapsService implements OnModuleDestroy {
       return
     }
 
-    const map = await this.findOne<K, V>(mapName)
+    const map = await this.findMap<K, V>(mapName)
 
     const listenerId = await map.addEntryListener({
       removed: (data) => this.itemEvents$.next({ mapName, event: MapItemEvent.Removed, data }),

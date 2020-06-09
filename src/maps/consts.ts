@@ -16,3 +16,10 @@ export enum MapEntityEvent {
   MapEvicted = 'MapEvicted',
   MapCleared = 'MapCleared',
 }
+
+export const validationConstraints = {
+  mapName: {
+    minLength: 1,
+    maxLength: 128,
+  },
+}
