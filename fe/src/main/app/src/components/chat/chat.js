@@ -151,7 +151,6 @@ class Chat extends Component {
   }
 
   handleData(message) {
-    console.log('receive', "'****'")
     console.log('receive', "'", typeof message, "'")
     console.log('receive', "'", message.toString(), "'")
   }
