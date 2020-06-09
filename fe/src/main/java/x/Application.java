@@ -13,6 +13,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 public class Application {
+    
+    public final static String NODE_SERVER = "http://localhost:3000";
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(Application.class);

@@ -3,6 +3,7 @@ logging.level:
   springfox: ERROR
   x: TRACE
 
+# Don't change, hardcoded in js files
 server.port: 9000
 
 spring.main:

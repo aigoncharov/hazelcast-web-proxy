@@ -30,3 +30,21 @@ h3 {
   color: var(--hazelcast-blue);
   padding: 5px 5px 5px 5px;
 }
+
+.chatBox {
+  border-size: 1px;
+  border-style: solid;
+  border-color: black;
+  background-color: powderblue;
+  color: black;
+  padding: 5px 5px 5px 5px;
+}
+
+.senderBox {
+  border-size: 1px;
+  border-style: solid;
+  border-color: black;
+  background-color: cornsilk;
+  color: black;
+  padding: 5px 5px 5px 5px;
+}
