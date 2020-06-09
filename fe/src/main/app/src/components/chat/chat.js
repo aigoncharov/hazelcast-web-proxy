@@ -5,6 +5,10 @@ import { useTable } from 'react-table'
 import styled from 'styled-components'
 import update from 'immutability-helper'
 
+const WS_URL = 'http://localhost:3000/'
+const WS_TOPICS_PREFIX = '/topics'
+const WS_TOPICS = [WS_TOPICS_PREFIX + '/job_state']
+
 //Styled-components. Could move to CSS
 const Styles = styled.div`
   padding: 1rem;
@@ -103,6 +107,11 @@ class Chat extends Component {
     this.state = {
       chat: [],
     }
+    this.handleData = this.handleData.bind(this)
+  }
+
+  handleData(message) {
+    console.log(message)
   }
 
   componentDidMount() {}
@@ -110,6 +119,7 @@ class Chat extends Component {
   render() {
     return (
       <div class="chatBox">
+        <SockJsClient url={WS_URL} topics={WS_TOPICS} onMessage={this.handleData} debug={false} />
         <Styles>
           <Table columns={columns} data={this.state.chat} />
         </Styles>

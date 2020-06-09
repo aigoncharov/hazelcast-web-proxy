@@ -1,6 +1,5 @@
 package x;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -8,7 +7,6 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.boot.jackson.JsonObjectDeserializer;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,7 +36,7 @@ public class MyRestProxy {
     public MyRestProxy() {
         this.dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.ROOT);
         this.restTemplate = new RestTemplate();
-        this.mapName = "chat-" + LocalDate.now();
+        this.mapName = "map-1"; //"chat-" + LocalDate.now();
         this.sender = System.getProperty("user.name", "?");
         
         LOGGER.info("{} -> creating a new map '{}'", this, mapName);
@@ -60,7 +58,8 @@ public class MyRestProxy {
                     new HttpEntity<MultiValueMap<String, String>>(map, headers);
 
             LOGGER.info("URL {}", url);
-            ResponseEntity<Object> response = restTemplate.postForEntity(url, request, Object.class);
+            ResponseEntity<Object> response = 
+                    this.restTemplate.postForEntity(url, request, Object.class);
             
             if (response.getStatusCode() != HttpStatus.CREATED) {
                 LOGGER.error("{}", response);
@@ -89,31 +88,26 @@ public class MyRestProxy {
         try {
             String url = Application.NODE_SERVER 
                     + "/maps/" + this.mapName + "/" + key;
-            LOGGER.info("URL {}", url);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
-            
             value = value.replaceAll("\"", "'");
-            JSONObject dataJSON = new JSONObject("{ \"data\": \"" + value + "\" }");
-            LOGGER.info("{}", dataJSON);
+            value = "{\"data\":{\"message\":\"" + value + "\"}}";
+            JSONObject jsonObject = new JSONObject(value);
+            LOGGER.info("{} ==> {}", key, jsonObject);
             
-            map.add("data", dataJSON.toString());
-
-            HttpEntity<MultiValueMap<String, String>> request = 
-                    new HttpEntity<MultiValueMap<String, String>>(map, headers);
-
+            HttpEntity<String> request = 
+                    new HttpEntity<String>(jsonObject.toString(), headers);
+            
+            LOGGER.info("URL {}", url);
             ResponseEntity<Object> response = restTemplate.postForEntity(url, request, Object.class);
             
-            if (response.getStatusCode() != HttpStatus.OK) {
+            if (response.getStatusCode() != HttpStatus.CREATED) {
                 LOGGER.error("{}", response);
-                LOGGER.error("{}", response.getBody());
                 LOGGER.error("{}", response.getStatusCode());
             } else {
                 LOGGER.debug("{}", response);
-                LOGGER.debug("{}", response.getBody());
                 LOGGER.debug("{}", response.getStatusCode());
             }
 
