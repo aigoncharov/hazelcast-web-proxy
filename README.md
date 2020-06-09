@@ -1,10 +1,9 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
-
 - [Description](#description)
 - [Installation](#installation)
+- [Running the demo](#running-the-demo)
 - [Running the app](#running-the-app)
 - [Test](#test)
 - [Support](#support)
@@ -46,8 +45,15 @@
 ## Installation
 
 ```bash
-$ npm install
+$ npm ci
 ```
+
+## Running the demo
+
+1. `npm ci`
+2. `docker run -e JAVA_OPTS="-Dhazelcast.local.publicAddress=localhost:5701" -p 5701:5701 hazelcast/hazelcast:3.12.7`
+3. `npm start`
+4. `npx ts-node ./samples/maps.ts`
 
 ## Running the app
 

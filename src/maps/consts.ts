@@ -2,7 +2,9 @@ import { WebSocketServer } from '@nestjs/websockets'
 
 export const mapResourceUrl = 'maps'
 
-export enum MapItemEvent {
+export const mapItemEvent = 'mapItem'
+
+export enum MapItemEventType {
   Added = 'MapItemAdded',
   Removed = 'MapItemRemoved',
   Updated = 'MapItemUpdated',
@@ -12,7 +14,16 @@ export enum MapItemEvent {
   Loaded = 'MapItemLoaded',
 }
 
-export enum MapEntityEvent {
+export const mapEntityEvent = 'map'
+
+export enum MapEntityEventType {
   MapEvicted = 'MapEvicted',
   MapCleared = 'MapCleared',
+}
+
+export const validationConstraints = {
+  mapName: {
+    minLength: 1,
+    maxLength: 128,
+  },
 }

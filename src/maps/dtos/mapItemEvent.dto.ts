@@ -1,3 +1,5 @@
 import { EntryEvent } from 'hazelcast-client'
 
-export type MapItemEventResDTO = EntryEvent<unknown, unknown> & { mapName: string }
+import { MapItemEventType } from '../consts'
+
+export type MapItemEventResDTO = EntryEvent<unknown, unknown> & { mapName: string; type: MapItemEventType }

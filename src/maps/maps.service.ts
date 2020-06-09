@@ -1,15 +1,25 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common'
+import { Injectable, OnModuleDestroy, NotFoundException } from '@nestjs/common'
 import { EntryEvent } from 'hazelcast-client/lib/core/EntryListener'
 import { MapEvent } from 'hazelcast-client/lib/core/MapListener'
+import { Subject } from 'rxjs'
 
 import { HazelcastClientService } from '../core/hazlecastClient.service'
-import { MapItemEvent, MapEntityEvent } from './consts'
-import { Subject } from 'rxjs'
+import { MapItemEventType, MapEntityEventType } from './consts'
+import { MapNotFoundError } from '../core/errors/mapNotFound.error'
+
+const mockMaps = [
+  {
+    getName: () => 'map-1',
+  },
+  {
+    getName: () => 'map-2',
+  },
+]
 
 @Injectable()
 export class MapsService implements OnModuleDestroy {
-  public readonly itemEvents$ = new Subject<{ mapName: string; event: MapItemEvent; data: EntryEvent<unknown, unknown> }>()
-  public readonly entityEvents$ = new Subject<{ mapName: string; event: MapEntityEvent; data: MapEvent }>()
+  public readonly itemEvents$ = new Subject<{ mapName: string; event: MapItemEventType; data: EntryEvent<unknown, unknown> }>()
+  public readonly entityEvents$ = new Subject<{ mapName: string; event: MapEntityEventType; data: MapEvent }>()
 
   private listeners = new Map<string, string>()
 
@@ -22,38 +32,65 @@ export class MapsService implements OnModuleDestroy {
     }
   }
 
-  async findAll() {
-    const distributedObjects = await this.hazelcastClientService.client.getDistributedObjects()
-    const maps = distributedObjects.filter((item) => item.getServiceName() === 'map')
-    return maps
+  async findAllMaps() {
+    // https://github.com/hazelcast/hazelcast-nodejs-client/issues/539
+    // https://github.com/hazelcast/hazelcast-nodejs-client/issues/538
+    // const distributedObjects = await this.hazelcastClientService.client.getDistributedObjects()
+    // const maps = distributedObjects.filter((item) => item.getServiceName() === 'map')
+    // return maps
+    return mockMaps
   }
 
-  async findOne<K, V>(mapName: string) {
-    // TODO the problem here is that this call will create IMap, if it wasn't there
-    // as a hacky solution, we could use findAll() filter the result
+  async findMap<K, V>(mapName: string) {
+    const maps = await this.findAllMaps()
+
+    if (!maps.find((map) => map.getName() === mapName)) {
+      throw new MapNotFoundError(mapName)
+    }
+
     const map = await this.hazelcastClientService.client.getMap<K, V>(mapName)
     return map
   }
 
+  async createMap(mapName: string) {
+    await this.hazelcastClientService.client.getMap(mapName)
+    this.subscribeToMap(mapName)
+
+    // TODO: Remove me
+    mockMaps.push({
+      getName: () => mapName,
+    })
+  }
+
+  async deleteMap(mapName: string) {
+    const map = await this.findMap(mapName)
+
+    await map.destroy()
+
+    this.listeners.delete(mapName)
+
+    // TODO: Remove me
+    const mapToRemove = mockMaps.findIndex((map) => map.getName() === mapName)
+    mockMaps.splice(mapToRemove, 1)
+  }
+
   async get<K, V>(mapName: string, key: K) {
-    const map = await this.findOne<K, V>(mapName)
+    const map = await this.findMap<K, V>(mapName)
     return await map.get(key)
   }
 
   async create<K, V>(mapName: string, key: K, value: V) {
-    const map = await this.findOne<K, V>(mapName)
-    await map.putIfAbsent(key, value)
-    // TODO we should subscribe on the first WS subscription instead of this place
-    this.subscribeToMap(mapName)
+    const map = await this.findMap<K, V>(mapName)
+    return await map.putIfAbsent(key, value)
   }
 
   async update<K, V>(mapName: string, key: K, value: V) {
-    const map = await this.findOne<K, V>(mapName)
-    await map.put(key, value)
+    const map = await this.findMap<K, V>(mapName)
+    return await map.put(key, value)
   }
 
   async delete<K, V>(mapName: string, key: K) {
-    const map = await this.findOne<K, V>(mapName)
+    const map = await this.findMap<K, V>(mapName)
     await map.delete(key)
   }
 
@@ -62,18 +99,18 @@ export class MapsService implements OnModuleDestroy {
       return
     }
 
-    const map = await this.findOne<K, V>(mapName)
+    const map = await this.findMap<K, V>(mapName)
 
     const listenerId = await map.addEntryListener({
-      removed: (data) => this.itemEvents$.next({ mapName, event: MapItemEvent.Removed, data }),
-      added: (data) => this.itemEvents$.next({ mapName, event: MapItemEvent.Added, data }),
-      updated: (data) => this.itemEvents$.next({ mapName, event: MapItemEvent.Updated, data }),
-      merged: (data) => this.itemEvents$.next({ mapName, event: MapItemEvent.Merged, data }),
-      evicted: (data) => this.itemEvents$.next({ mapName, event: MapItemEvent.Evicted, data }),
-      expired: (data) => this.itemEvents$.next({ mapName, event: MapItemEvent.Expired, data }),
-      loaded: (data) => this.itemEvents$.next({ mapName, event: MapItemEvent.Loaded, data }),
-      mapEvicted: (data) => this.entityEvents$.next({ mapName, event: MapEntityEvent.MapEvicted, data }),
-      mapCleared: (data) => this.entityEvents$.next({ mapName, event: MapEntityEvent.MapCleared, data }),
+      removed: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Removed, data }),
+      added: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Added, data }),
+      updated: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Updated, data }),
+      merged: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Merged, data }),
+      evicted: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Evicted, data }),
+      expired: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Expired, data }),
+      loaded: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Loaded, data }),
+      mapEvicted: (data) => this.entityEvents$.next({ mapName, event: MapEntityEventType.MapEvicted, data }),
+      mapCleared: (data) => this.entityEvents$.next({ mapName, event: MapEntityEventType.MapCleared, data }),
     })
 
     this.listeners.set(mapName, listenerId)
