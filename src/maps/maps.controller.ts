@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Delete, Param } from '@nestjs/common'
+import { Controller, Get, Post, Body, Put, Delete, Param, NotFoundException } from '@nestjs/common'
 
 import { MapListResDTO } from './dtos/mapList.dto'
 import { MapDetailedResDTO } from './dtos/mapDetailed.dto'
@@ -30,10 +30,14 @@ export class MapsController {
   // TODO we could support POST /maps/:id endpoint that would create a map
 
   @Get(':id/:key')
-  async getKey(): Promise<{
-    /** TODO: What are the possible map values? - they may be arbitrary; let's support string | Object */
-  }> {
-    return await this.mapsService.get(mapName, key)
+  async getKey(@Param('id') mapName: string, @Param('key') key: string): Promise<string | object> {
+    const value = await this.mapsService.get<string, string | object>(mapName, key)
+
+    if (!value) {
+      throw new NotFoundException()
+    }
+
+    return value
   }
 
   @Post(':id/:key')

@@ -26,5 +26,12 @@ export class MapsGateway implements OnGatewayInit {
       }
       server.emit(event, eventData)
     })
+
+    const maps = await this.mapsService.findAll()
+
+    for (const map of maps) {
+      const mapName = map.getName()
+      await this.mapsService.subscribeToMap(mapName)
+    }
   }
 }
