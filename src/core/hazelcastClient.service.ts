@@ -11,7 +11,11 @@ export class HazelcastClientService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit(): Promise<void> {
-    this.clientInternal = await Client.newHazelcastClient()
+    const clientConfig = new Config.ClientConfig()
+    clientConfig.groupConfig.name = 'Cluster-1'
+
+    this.clientInternal = await Client.newHazelcastClient(clientConfig)
+    //this.clientInternal = await Client.newHazelcastClient()
   }
 
   onModuleDestroy(): void {
