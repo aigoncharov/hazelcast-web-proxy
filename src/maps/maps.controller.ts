@@ -48,12 +48,12 @@ export class MapsController {
   }
 
   @Post(':id/:key')
-  async putKey(@Param('id') mapName: string, @Param('key') key: string, @Body() data: MapPutKeyReqDTO): Promise<void> {
+  async putKey(@Param('id') mapName: string, @Param('key') key: string, @Body() { data }: MapPutKeyReqDTO): Promise<void> {
     await this.mapsService.create(mapName, key, data)
   }
 
   @Put(':id/:key')
-  async replaceKey(@Param('id') mapName: string, @Param('key') key: string, @Body() data: MapReplaceKeyReqDTO): Promise<void> {
+  async replaceKey(@Param('id') mapName: string, @Param('key') key: string, @Body() { data }: MapReplaceKeyReqDTO): Promise<void> {
     await this.mapsService.update(mapName, key, data)
   }
 
