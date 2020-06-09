@@ -12,11 +12,16 @@ export class HazelcastClientService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit(): Promise<void> {
     console.log('HazelcastClientService.onModuleInit')
-    const clientConfig = new Config.ClientConfig()
-    clientConfig.groupConfig.name = 'Cluster-1'
+    try {
+      const clientConfig = new Config.ClientConfig()
+      clientConfig.groupConfig.name = 'Cluster-1'
 
-    this.clientInternal = await Client.newHazelcastClient(clientConfig)
-    //this.clientInternal = await Client.newHazelcastClient()
+      this.clientInternal = await Client.newHazelcastClient(clientConfig)
+      //this.clientInternal = await Client.newHazelcastClient()
+    } catch (e) {
+      console.error('HazelcastClientService.onModuleInit -> could not start client', e)
+      process.exit(1)
+    }
     console.log('HazelcastClientService.onModuleInit -> finished')
   }
 
