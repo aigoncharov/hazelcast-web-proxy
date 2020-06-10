@@ -12,13 +12,12 @@ public class Rot13 {
 
             if (('a' <= c && c <= 'm') || ('A' <= c && c <= 'M')) {
                 c += 13;
-                stringBuilder.append((c));
             } else {
                 if (('n' <= c && c <= 'z') || ('N' <= c && c <= 'Z')) {
                     c -= 13;
-                    stringBuilder.append(c);
                 }
             }
+            stringBuilder.append(c);
         }
         
         return stringBuilder.toString();
