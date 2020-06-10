@@ -15,7 +15,7 @@
 
 	<properties>
 		<frontend.app.dir>${project.basedir}/src/main/app</frontend.app.dir>
-		<java.version>11</java.version>
+		<java.version>8</java.version>
 		<maven.build.timestamp>${maven.build.timestamp}</maven.build.timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
 		<node.version>v14.4.0</node.version>
