@@ -62,6 +62,10 @@ const columns = [
         Header: 'What',
         accessor: 'what',
       },
+      {
+        Header: 'Received',
+        accessor: 'received',
+      },
     ],
   },
 ]
@@ -153,6 +157,25 @@ class Chat extends Component {
   handleData(message) {
     console.log('receive', "'", typeof message, "'")
     console.log('receive', "'", message.toString(), "'")
+
+    var chats = this.state.chat
+    var rows = chats.length
+
+    var who = 'todo' + rows
+    var when = 'todo'
+    var received = 'todo'
+    var what = rot13(received)
+
+    var item = {
+      who: who,
+      when: when,
+      what: what,
+      received: received,
+    }
+
+    this.setState({
+      chat: update(this.state.chat, { $push: [item] }),
+    })
   }
 
   componentDidMount() {}

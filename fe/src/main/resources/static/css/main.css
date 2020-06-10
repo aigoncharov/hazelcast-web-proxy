@@ -37,7 +37,9 @@ h3 {
   border-color: black;
   background-color: powderblue;
   color: black;
+  height: 350px;
   padding: 5px 5px 5px 5px;
+  overflow-y: auto;
 }
 
 .senderBox {
