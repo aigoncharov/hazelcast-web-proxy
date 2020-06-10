@@ -155,15 +155,23 @@ class Chat extends Component {
   }
 
   handleData(message) {
-    console.log('receive', "'", typeof message, "'")
     console.log('receive', message)
 
-    /*var chats = this.state.chat
-    var rows = chats.length
+    //var keys = Object.keys(message);
+    //console.log("keys", keys.length);
+    //for (var i = 0; i < keys.length; i++) {
+    //	console.log("key", keys[i])
+    //}
 
-    var who = 'todo' + rows
-    var when = 'todo'
-    var received = 'todo'
+    var key = message.key
+    var value = message.value.message
+    console.log('value', value)
+
+    var chats = this.state.chat
+    var rows = chats.length
+    var who = key.split(',')[1]
+    var when = key.split(',')[0]
+    var received = value
     var what = rot13(received)
 
     var item = {
@@ -175,7 +183,7 @@ class Chat extends Component {
 
     this.setState({
       chat: update(this.state.chat, { $push: [item] }),
-    })*/
+    })
   }
 
   componentDidMount() {}
