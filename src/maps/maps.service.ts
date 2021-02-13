@@ -3,7 +3,7 @@ import { EntryEvent } from 'hazelcast-client/lib/core/EntryListener'
 import { MapEvent } from 'hazelcast-client/lib/core/MapListener'
 import { Subject } from 'rxjs'
 
-import { HazelcastClientService } from '../core/hazlecastClient.service'
+import { HazelcastClientService } from '../core/hazelcastClient.service'
 import { MapItemEventType, MapEntityEventType } from './consts'
 import { MapNotFoundError } from '../core/errors/mapNotFound.error'
 
@@ -101,17 +101,21 @@ export class MapsService implements OnModuleDestroy {
 
     const map = await this.findMap<K, V>(mapName)
 
-    const listenerId = await map.addEntryListener({
-      removed: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Removed, data }),
-      added: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Added, data }),
-      updated: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Updated, data }),
-      merged: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Merged, data }),
-      evicted: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Evicted, data }),
-      expired: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Expired, data }),
-      loaded: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Loaded, data }),
-      mapEvicted: (data) => this.entityEvents$.next({ mapName, event: MapEntityEventType.MapEvicted, data }),
-      mapCleared: (data) => this.entityEvents$.next({ mapName, event: MapEntityEventType.MapCleared, data }),
-    })
+    const listenerId = await map.addEntryListener(
+      {
+        removed: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Removed, data }),
+        added: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Added, data }),
+        updated: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Updated, data }),
+        merged: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Merged, data }),
+        evicted: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Evicted, data }),
+        expired: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Expired, data }),
+        loaded: (data) => this.itemEvents$.next({ mapName, event: MapItemEventType.Loaded, data }),
+        mapEvicted: (data) => this.entityEvents$.next({ mapName, event: MapEntityEventType.MapEvicted, data }),
+        mapCleared: (data) => this.entityEvents$.next({ mapName, event: MapEntityEventType.MapCleared, data }),
+      },
+      undefined,
+      true,
+    )
 
     this.listeners.set(mapName, listenerId)
   }

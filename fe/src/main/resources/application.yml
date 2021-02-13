@@ -1,0 +1,10 @@
+logging.level:
+  org.springframework: ERROR
+  springfox: ERROR
+  x: TRACE
+
+# Don't change, hardcoded in js files
+server.port: 9000
+
+spring.main:
+  banner-mode: 'off'

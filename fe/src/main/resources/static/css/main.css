@@ -1,0 +1,52 @@
+:root {
+  --hazelcast-blue: #012168;
+  --hazelcast-blue-dark: #0b2a35;
+  --hazelcast-blue-light: #2e7de1;
+  --hazelcast-orange: #ff5f00;
+}
+
+body {
+  background: #005eb8;
+}
+
+h1 {
+  color: var(--hazelcast-blue-light);
+}
+h2,
+h3 {
+  color: var(--hazelcast-blue-dark);
+}
+
+.headerfooter {
+  text-align: center;
+  color: var(--hazelcast-blue-dark);
+}
+
+.mainBox {
+  border-size: 1px;
+  border-style: solid;
+  border-color: var(--hazelcast-blue-orange);
+  background-color: white;
+  color: var(--hazelcast-blue);
+  padding: 5px 5px 5px 5px;
+}
+
+.chatBox {
+  border-size: 1px;
+  border-style: solid;
+  border-color: black;
+  background-color: powderblue;
+  color: black;
+  height: 350px;
+  padding: 5px 5px 5px 5px;
+  overflow-y: auto;
+}
+
+.senderBox {
+  border-size: 1px;
+  border-style: solid;
+  border-color: black;
+  background-color: cornsilk;
+  color: black;
+  padding: 5px 5px 5px 5px;
+}
